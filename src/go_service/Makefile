@@ -7,3 +7,6 @@ build:
 
 run: build
 	@./bin/gore.exe
+
+air:
+	@air

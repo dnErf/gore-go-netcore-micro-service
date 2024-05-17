@@ -31,7 +31,7 @@ func Home() templ.Component {
 				templ_7745c5c3_Buffer = templ.GetBuffer()
 				defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"p-2\"><div><h1>micro service</h1><hr><button>Test Service</button><div><span>output shows here...</span></div></div><br><div class=\"flex flex-row gap-2\"><div><h2>data sent</h2></div><div><h2>data received</h2></div></div></div>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"\"><div><h1>micro service</h1><hr><button>Test Service</button><div><span>output shows here...</span></div></div><br><div class=\"\"><div><h2>data sent</h2></div><div><h2>data received</h2></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -14,6 +14,6 @@ func main() {
 
 	router.PathPrefix("/bin/").Handler(http.StripPrefix("/bin/", http.FileServer(http.Dir("bin"))))
 
-	fmt.Print("listening to :3000")
+	fmt.Print("listening to :3000\n")
 	http.ListenAndServe(":3000", router)
 }
