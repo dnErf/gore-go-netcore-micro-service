@@ -1,11 +1,11 @@
 root = "."
 testdata_dir = "testdata"
-tmp_dir = "tmp"
+tmp_dir = "bin"
 
 [build]
   args_bin = []
   bin = "bin\\gore.exe"
-  cmd = "pnpm run style && templ generate && go build -o ./bin/gore.exe ."
+  cmd = "make build"
   delay = 1000
   exclude_dir = ["assets", "bin", "node_modules", "public", "tmp", "vendor", "testdata"]
   exclude_file = []
