@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+option go_package = "/proto/rpm";
+
+package proto;
+
+service DataTransferService {
+    rpc TransferData(DataTransferPayload) returns (DataTransferPaystub); 
+}
+
+message DataTransferPayload {
+    bool is_fine = 1;
+    string data = 2;
+    string action = 3;
+}
+
+message DataTransferPaystub {
+    bool ack = 1;
+}
