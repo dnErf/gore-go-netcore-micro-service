@@ -1,9 +1,29 @@
+using System.Net;
+using Gore;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddCors(o => {
+    o.AddPolicy("dev", p => {
+        // p.AllowAnyOrigin();
+        //AllowAnyHeader().AllowAnyMethod().AllowCredentials()
+    });
+});
+
+builder.Services.AddGrpc(o => o.EnableDetailedErrors = true);
+
+builder.WebHost.ConfigureKestrel(o => {
+    o.Listen(IPAddress.Any, 5006, lo => {
+        lo.Protocols = HttpProtocols.Http2; 
+        lo.UseHttps(@"C:\.x\.dmp\cert\localdev.pfx", "password");
+    });
+});
 
 var app = builder.Build();
 
@@ -14,7 +34,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+app.UseCors("dev");
+// app.UseHttpsRedirection();
+
+app.MapGrpcService<DataTransferProcedure>();
 
 var summaries = new[]
 {

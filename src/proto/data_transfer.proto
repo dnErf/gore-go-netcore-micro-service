@@ -9,11 +9,11 @@ service DataTransferService {
 }
 
 message DataTransferPayload {
-    bool is_fine = 1;
-    string data = 2;
-    string action = 3;
+    bool IsFine = 1;
+    string Data = 2;
+    string Action = 3;
 }
 
 message DataTransferPaystub {
-    bool ack = 1;
+    bool Ack = 1;
 }
