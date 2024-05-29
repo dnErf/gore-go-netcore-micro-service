@@ -16,14 +16,18 @@ builder.Services.AddCors(o => {
     });
 });
 
-builder.Services.AddGrpc(o => o.EnableDetailedErrors = true);
+// builder.Services.AddGrpc(o => o.EnableDetailedErrors = true);
+// builder.WebHost.ConfigureKestrel(o => {
+//     o.ListenLocalhost(5006, lo => {
+//         lo.Protocols = HttpProtocols.Http2;
+//         lo.UseHttps(@"C:\.x\.dmp\cert\localdev.pfx", "password");
+//     });
 
-builder.WebHost.ConfigureKestrel(o => {
-    o.Listen(IPAddress.Any, 5006, lo => {
-        lo.Protocols = HttpProtocols.Http2; 
-        lo.UseHttps(@"C:\.x\.dmp\cert\localdev.pfx", "password");
-    });
-});
+//     o.Listen(IPAddress.Any, 5006, lo => {
+//         lo.Protocols = HttpProtocols.Http2; 
+//         lo.UseHttps(@"C:\.x\.dmp\cert\localdev.pfx", "password");
+//     });
+// });
 
 var app = builder.Build();
 
@@ -37,7 +41,7 @@ if (app.Environment.IsDevelopment())
 app.UseCors("dev");
 // app.UseHttpsRedirection();
 
-app.MapGrpcService<DataTransferProcedure>();
+// app.MapGrpcService<DataTransferProcedure>();
 
 var summaries = new[]
 {
