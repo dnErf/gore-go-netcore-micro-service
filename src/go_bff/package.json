@@ -1,0 +1,17 @@
+{
+  "name": "go_bff",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "style": "tailwindcss -i web/styles.css -o assets/css/styles.css",
+    "style-watch": "tailwindcss -i web/styles.css -o assets/css/styles.css --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "tailwindcss": "^3.4.3"
+  }
+}

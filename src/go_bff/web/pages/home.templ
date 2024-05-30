@@ -1,0 +1,73 @@
+package pages
+
+import "bff/web/layouts"
+
+templ Home() {
+    @layouts.Base() {
+        <div class="p-4">
+            <div>
+                <h1 class="">micro service</h1>
+                <hr />
+                <div class="my-2 flex flex-row gap-4">
+                    <button id="testService" class="border p-2">
+                        Test Service
+                    </button>
+                    <button class="border p-2">
+                        Test Log
+                    </button>
+                </div>
+            </div>
+            <div class="flex w-full">
+                <div class="w-1/2">
+                    <h2>data sent</h2>
+                    <pre id="sent" class="border px-4">
+                    </pre>
+                </div>
+                <div class="w-0 h-4"></div>
+                <div class="w-1/2">
+                    <h2>data received</h2>
+                    <pre id="received" class="border px-4">
+                    </pre>
+                </div>
+            </div>
+        </div>
+    }
+    
+    <script>
+        let sent = document.getElementById("sent")
+        let received = document.getElementById("received")
+
+        let payloadTest = {
+            action: "test",
+            data: {
+                message: "some kind of test"
+            }
+        }
+        let payStubTest = {
+            action: "test",
+            data: {
+                message: "some kind of test"
+            }
+        }
+
+        sent.innerHTML = "..."
+        received.innerHTML = "..."
+
+        let testService = document.getElementById("testService")
+        testService.addEventListener("click", function() {
+            console.log("clicked test service")
+            sent.innerHTML = JSON.stringify(payloadTest, undefined, 4)
+
+            fetch("/test-service", {
+                method: "POST",
+                body: JSON.stringify(payloadTest)
+            })
+            .then((response) => response.json())
+            .then((data) => {
+                received.innerHTML = JSON.stringify(data, undefined, 4)
+            })
+            
+            console.log("===")
+        })
+    </script>
+}
