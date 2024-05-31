@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"gore/api"
-	"gore/views"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -11,11 +10,10 @@ import (
 
 func main() {
 	router := mux.NewRouter()
-	router.HandleFunc("/", views.RenderHome).Methods("GET")
 	router.HandleFunc("/test-service", api.HandleTestService).Methods("POST")
 
-	router.PathPrefix("/bin/").Handler(http.StripPrefix("/bin/", http.FileServer(http.Dir("bin"))))
+	router.PathPrefix("/assets/").Handler(http.StripPrefix("/assets/", http.FileServer(http.Dir("assets"))))
 
-	fmt.Print("listening to :3000\n")
-	http.ListenAndServe(":3000", router)
+	fmt.Print("listening to :9998\n")
+	http.ListenAndServe(":9998", router)
 }
