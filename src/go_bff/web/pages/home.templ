@@ -12,7 +12,7 @@ templ Home() {
                     <button id="testService" class="border p-2">
                         Test Service
                     </button>
-                    <button class="border p-2">
+                    <button id="logBtn" click="logEvent" class="border p-2">
                         Test Log
                     </button>
                 </div>
@@ -67,6 +67,22 @@ templ Home() {
                 received.innerHTML = JSON.stringify(data, undefined, 4)
             })
             
+            console.log("===")
+        })
+
+        let logBtn = document.getElementById("logBtn")
+        logBtn.addEventListener("click", function() {
+            console.log("= clicked log btn =") 
+
+            fetch("/log", {
+                method: "POST",
+                body: JSON.stringify(payloadTest)
+            })
+            .then((response) => response.json())
+            .then((data) => {
+                received.innerHTML = JSON.stringify(data, undefined, 4)
+            })
+
             console.log("===")
         })
     </script>

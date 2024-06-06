@@ -23,6 +23,7 @@ func main() {
 
 	router := mux.NewRouter()
 	router.HandleFunc(api.TestServiceRoute, api.TestServiceRouteHandler)
+	router.HandleFunc(api.LogRoute, api.LogRouteHandler)
 	router.HandleFunc("/", web.RenderHome).Methods("GET")
 
 	router.PathPrefix("/assets/").Handler(http.StripPrefix("/assets/", http.FileServer((http.Dir("assets")))))
