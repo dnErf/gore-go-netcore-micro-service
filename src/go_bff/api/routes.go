@@ -4,7 +4,6 @@ import (
 	"bff/internal/models"
 	"bff/internal/mq"
 	"bff/internal/utils"
-	"encoding/json"
 	"fmt"
 	"net/http"
 )
@@ -23,13 +22,19 @@ func TestServiceRouteHandler(w http.ResponseWriter, r *http.Request) {
 	paystub.IsFine = true
 	paystub.Message = "test is successful"
 	utils.WriteJSON(w, paystub)
+}
 
-	j, err := json.MarshalIndent(&payload, "", "\t")
+const LogRoute = "/log"
+
+func LogRouteHandler(w http.ResponseWriter, r *http.Request) {
+	var payload models.RequestPayload
+	err := utils.ReadJSON(w, r, &payload)
 	if err != nil {
 		return
 	}
+	fmt.Printf("%v", payload)
 
-	if err = mq.RabbitSession.EmitEvent("log.INFO", []byte(j)); err != nil {
+	if err = mq.RabbitSession.EmitLog(payload); err != nil {
 		return
 	}
 }

@@ -2,6 +2,7 @@ package mq
 
 import (
 	"bff/internal/models"
+	"bff/internal/utils"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -42,7 +43,7 @@ func StartSessionToRabbitMq(c *amqp.Connection) {
 	}()
 }
 
-func (rcs *RabbitClientSession) EmitEvent(event_key string, payload []byte) error {
+func (rcs *RabbitClientSession) emitEvent(event_key string, payload []byte) error {
 	err := rcs.AmqpChannel.Publish(
 		"topic_exchange",
 		event_key,
@@ -61,6 +62,23 @@ func (rcs *RabbitClientSession) EmitEvent(event_key string, payload []byte) erro
 	return nil
 }
 
+func (rcs *RabbitClientSession) EmitLog(data any) error {
+	// var payload models.RequestPayload
+
+	payloadByte, err := utils.MarshalTabIndenter(data)
+	if err != nil {
+		log.Fatalf("marshal indent %v", err)
+		return err
+	}
+
+	if err = rcs.emitEvent("log.INFO", payloadByte); err != nil {
+		log.Fatalf("emit event %v", err)
+		return err
+	}
+
+	return nil
+}
+
 func (rcs *RabbitClientSession) TestEmitEvent() {
 	var paystub models.ResponsePaystub
 	paystub.IsFine = true
@@ -73,7 +91,7 @@ func (rcs *RabbitClientSession) TestEmitEvent() {
 
 	for i := 0; i <= 100; i++ {
 		fmt.Printf("%v\n", i)
-		if err = rcs.EmitEvent("log.INFO", []byte(j)); err != nil {
+		if err = rcs.emitEvent("log.INFO", []byte(j)); err != nil {
 			log.Fatalf("emit event %v", err)
 		}
 	}

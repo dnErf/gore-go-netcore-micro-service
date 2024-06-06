@@ -34,3 +34,9 @@ func WriteJSON(w http.ResponseWriter, data any) error {
 	}
 	return nil
 }
+
+// TODO learn more about interface and generics to contraint
+// only if struct and/or if can be a Payload or Paystub
+func MarshalTabIndenter[T any](p T) ([]byte, error) {
+	return json.MarshalIndent(&p, "", "\t")
+}
