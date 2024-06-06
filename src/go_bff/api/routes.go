@@ -8,9 +8,19 @@ import (
 	"net/http"
 )
 
+type Routing struct {
+	rabbitmq *mq.RabbitClientConnection
+}
+
+func Init(rabbitmq *mq.RabbitClientConnection) *Routing {
+	return &Routing{
+		rabbitmq: rabbitmq,
+	}
+}
+
 const TestServiceRoute = "/test-service"
 
-func TestServiceRouteHandler(w http.ResponseWriter, r *http.Request) {
+func (options *Routing) TestServiceRouteHandler(w http.ResponseWriter, r *http.Request) {
 	var payload models.RequestPayload
 	err := utils.ReadJSON(w, r, &payload)
 	if err != nil {
@@ -22,11 +32,13 @@ func TestServiceRouteHandler(w http.ResponseWriter, r *http.Request) {
 	paystub.IsFine = true
 	paystub.Message = "test is successful"
 	utils.WriteJSON(w, paystub)
+
+	options.rabbitmq.EmitLog(paystub)
 }
 
 const LogRoute = "/log"
 
-func LogRouteHandler(w http.ResponseWriter, r *http.Request) {
+func (options *Routing) LogRouteHandler(w http.ResponseWriter, r *http.Request) {
 	var payload models.RequestPayload
 	err := utils.ReadJSON(w, r, &payload)
 	if err != nil {
@@ -34,7 +46,5 @@ func LogRouteHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Printf("%v", payload)
 
-	if err = mq.RabbitSession.EmitLog(payload); err != nil {
-		return
-	}
+	options.rabbitmq.EmitLog(payload)
 }

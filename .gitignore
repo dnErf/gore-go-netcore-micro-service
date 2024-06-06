@@ -13,6 +13,7 @@ appsettings.json
 
 .temp
 .cache
+.vscode
 
 # dotenv environment variable files
 .env

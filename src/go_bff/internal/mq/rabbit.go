@@ -3,55 +3,53 @@ package mq
 import (
 	"bff/internal/models"
 	"bff/internal/utils"
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
+	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-type RabbitClientSession struct {
+type RabbitClientConnection struct {
 	AmqpConnection *amqp.Connection
-	AmqpChannel    *amqp.Channel
-	AmqpQueue      amqp.Queue
 }
 
-var RabbitSession RabbitClientSession
+func Init(c *amqp.Connection) *RabbitClientConnection {
+	ch, err := c.Channel()
+	if err != nil {
+		log.Fatalf("cannot create channel %v", err)
+	}
+	defer ch.Close()
 
-func StartSessionToRabbitMq(c *amqp.Connection) {
-	// ctx, dn := context.WithCancel(context.Background())
-	// sessions := make(chan RabbitClientSession)
+	if err := ch.ExchangeDeclare("topic_exchange", "topic", false, true, false, false, nil); err != nil {
+		log.Fatalf("cannot declare topic exchange %v", err)
+	}
 
-	go func() {
-		ch, err := c.Channel()
-		if err != nil {
-			log.Fatalf("cannot create channel %v", err)
-		}
-
-		if err := ch.ExchangeDeclare("topic_exchange", "topic", false, true, false, false, nil); err != nil {
-			log.Fatalf("cannot declare topic exchange %v", err)
-		}
-
-		q, err := ch.QueueDeclare("", false, false, true, false, nil)
-		if err != nil {
-			log.Fatalf("cannot declare queue %v", err)
-		}
-
-		RabbitSession := RabbitClientSession{c, ch, q}
-
-		RabbitSession.TestEmitEvent()
-	}()
+	return &RabbitClientConnection{AmqpConnection: c}
 }
 
-func (rcs *RabbitClientSession) emitEvent(event_key string, payload []byte) error {
-	err := rcs.AmqpChannel.Publish(
+func (rcs *RabbitClientConnection) emitEvent(event_key string, payload []byte) error {
+	ch, err := rcs.AmqpConnection.Channel()
+	if err != nil {
+		log.Fatalf("cannot create channel %v", err)
+	}
+	defer ch.Close()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+
+	err = ch.PublishWithContext(
+		ctx,
 		"topic_exchange",
 		event_key,
 		false,
 		false,
 		amqp.Publishing{
-			ContentType: "text/plain",
-			Body:        payload,
+			ContentType:  "text/plain",
+			DeliveryMode: amqp.Transient,
+			Body:         payload,
 		},
 	)
 
@@ -62,16 +60,14 @@ func (rcs *RabbitClientSession) emitEvent(event_key string, payload []byte) erro
 	return nil
 }
 
-func (rcs *RabbitClientSession) EmitLog(data any) error {
-	// var payload models.RequestPayload
-
+func (rcc *RabbitClientConnection) EmitLog(data any) error {
 	payloadByte, err := utils.MarshalTabIndenter(data)
 	if err != nil {
 		log.Fatalf("marshal indent %v", err)
 		return err
 	}
 
-	if err = rcs.emitEvent("log.INFO", payloadByte); err != nil {
+	if err = rcc.emitEvent("log.INFO", payloadByte); err != nil {
 		log.Fatalf("emit event %v", err)
 		return err
 	}
@@ -79,7 +75,7 @@ func (rcs *RabbitClientSession) EmitLog(data any) error {
 	return nil
 }
 
-func (rcs *RabbitClientSession) TestEmitEvent() {
+func (rcc *RabbitClientConnection) TestEmitEvent() {
 	var paystub models.ResponsePaystub
 	paystub.IsFine = true
 	paystub.Message = "test is successful"
@@ -91,7 +87,7 @@ func (rcs *RabbitClientSession) TestEmitEvent() {
 
 	for i := 0; i <= 100; i++ {
 		fmt.Printf("%v\n", i)
-		if err = rcs.emitEvent("log.INFO", []byte(j)); err != nil {
+		if err = rcc.emitEvent("log.INFO", []byte(j)); err != nil {
 			log.Fatalf("emit event %v", err)
 		}
 	}

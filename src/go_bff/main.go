@@ -17,13 +17,14 @@ func main() {
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
-	mq.StartSessionToRabbitMq(c)
-	defer mq.RabbitSession.AmqpChannel.Close()
-	defer mq.RabbitSession.AmqpConnection.Close()
+	defer c.Close()
+
+	rabbitmq := mq.Init(c)
+	routing := api.Init(rabbitmq)
 
 	router := mux.NewRouter()
-	router.HandleFunc(api.TestServiceRoute, api.TestServiceRouteHandler)
-	router.HandleFunc(api.LogRoute, api.LogRouteHandler)
+	router.HandleFunc(api.TestServiceRoute, routing.TestServiceRouteHandler)
+	router.HandleFunc(api.LogRoute, routing.LogRouteHandler)
 	router.HandleFunc("/", web.RenderHome).Methods("GET")
 
 	router.PathPrefix("/assets/").Handler(http.StripPrefix("/assets/", http.FileServer((http.Dir("assets")))))
